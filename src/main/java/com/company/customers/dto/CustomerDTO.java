@@ -7,15 +7,15 @@ import java.time.LocalDate;
 @Data
 public class CustomerDTO {
 
-    @NotBlank
+    @NotBlank(message = "{error.firstName.notBlank}")
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = "{error.lastName.notBlank}")
     private String lastName;
 
-    @Min(18)
+    @Min(value = 18, message = "{error.age.min}")
     private int age;
 
-    @Past
+    @Past(message = "{error.birthDate.past}")
     private LocalDate birthDate;
 }
