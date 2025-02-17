@@ -65,7 +65,6 @@ docker run -p 8080:8080 customer-service:latest
 
 La aplicación estará disponible en http://localhost:8080.
 
-
 ## Interacción con los Endpoints a través de Swagger UI
 ### 1. Acceder a Swagger UI
    Swagger UI está disponible en:
@@ -77,24 +76,31 @@ http://localhost:8080/swagger-ui/index.html
 ### 2. Endpoints Disponibles
    La aplicación expone los siguientes endpoints:
 
-POST /login: Autenticación de usuarios.
-GET /customers/metrics: Obtiene métricas sobre los clientes existentes, como el promedio de edad y la desviación estándar de las edades.
+**`POST /login`**: Autenticación de usuarios.
+
+**`POST /customers`**: Genera un nuevo cliente con nombre, apellido, edad y fecha de nacimiento.
+
+**`GET /customers`**: Obtiene la lista de clientes existentes, con los datos con los que se crea mas alguno que se calcula.
+
+**`GET /customers/metrics`**: Obtiene métricas sobre los clientes existentes, como el promedio de edad y la desviación estándar de las edades.
 
 ### 3. Uso del Endpoint de Autenticación
    Para interactuar con los endpoints protegidos, primero debe autenticarse utilizando el endpoint /login:
 
-En Swagger UI, localice el endpoint POST /login.
-Haga clic en "Try it out".
+En Swagger UI, localice el endpoint **`POST /login`**.
+Haga clic en **`"Try it out"`**.
 Proporcione las credenciales de usuario. Por defecto:
+```bash
 Usuario: user
 Contraseña: password
-Haga clic en "Execute".
+```
+Haga clic en **`"Execute"`**.
 Si la autenticación es exitosa, recibirá un token JWT.
 
 ### 4. Autorización para Endpoints Protegidos
    Para acceder a los endpoints protegidos:
 
 Copie el token JWT recibido tras la autenticación.
-En Swagger UI, haga clic en el botón "Authorize" ubicado en la parte superior derecha.
-En el campo que aparece, ingrese Bearer seguido del token JWT copiado.
-Haga clic en "Authorize".
+En Swagger UI, haga clic en el botón **`"Authorize"`** ubicado en la parte superior derecha.
+En el campo que aparece, ingrese **`Bearer`** seguido del token JWT copiado.
+Haga clic en **`"Authorize"`**.
