@@ -1,0 +1,34 @@
+cloud:
+  aws:
+    sqs:
+      endpoint: http://localhost:4566
+      queue-name: customer-events
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "metrics,health,loggers"
+  metrics:
+    enable:
+      all: true
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+security:
+  jwt:
+    secret: "368cc0f4de9508c2cc5c6b6058aaed52efe976827105c050de37d52adbf18512269ef1256f6de17649d95b45a60ceb9a9d727981f329ce9142e0f88a413f92fd"
