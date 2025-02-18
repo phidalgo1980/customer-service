@@ -81,10 +81,10 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-<!--        &lt;!&ndash; AWS SQS Messaging &ndash;&gt;-->
 <!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-aws-messaging</artifactId>-->
+<!--            <groupId>io.awspring.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-aws-starter-sqs</artifactId>-->
+<!--            <version>3.3.0</version>-->
 <!--        </dependency>-->
 
         <!-- Logging (SLF4J + Logback) -->

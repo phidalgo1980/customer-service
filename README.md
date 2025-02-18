@@ -1,4 +1,4 @@
-# customer-service
+# customer-service challenge
 # Guía de Uso para la Aplicación Customer Service
 
 Este documento proporciona instrucciones detalladas para construir, ejecutar y utilizar la aplicación **Customer Service**, incluyendo la generación de la imagen Docker y la interacción con los endpoints a través de Swagger UI.
@@ -24,7 +24,7 @@ cd customer-service
 Utilice Maven para compilar y empaquetar la aplicación:
 
 ```bash
-./mvnw clean package
+mvn clean install -DskipTests
 ```
 
 Este comando generará un archivo JAR en el directorio target/.
@@ -155,3 +155,66 @@ Ejemplo:
 ```bash
 2025-02-17 21:00:32 [4fc01e20-fb60-41a7-a7f7-1725dc0361f2] INFO  c.c.c.controller.CustomerController - Getting customer metrics2025-02-17 21:00:32 [4fc01e20-fb60-41a7-a7f7-1725dc0361f2] INFO  c.c.c.controller.CustomerController - Getting customer metrics
 ```
+## Ultimas Consideraciones Generales
+
+La solución del challenge se limita a la construcción de la aplicación en un contenedor docker sin interacción con colas de mensajerías y sin despliegue sobre la nube, sin embargo se dejan las clases tanto de config como el bean que articularia como cliente para enviar mensajes a una cola sqs de aws (ambas comentadas en el código) **AwsConfig** y **SqsSenderService**. 
+A la vez se presenta un plan de despliegue para articular con github actions en un entorno de aws ec2:
+
+Primero debemos crear el directorio .github/workflows/. y luego un archivo YAML de workflow dentro de este directorio, por ejemplo, deploy.yml, con el siguiente contenido:
+
+```bash
+name: CI/CD Pipeline
+
+on:
+push:
+branches: [ main ]
+
+jobs:
+build:
+runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
+
+    - name: Build Docker image
+      run: docker build -t dockerhub-username/repo-name:latest .
+
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Push Docker image
+      run: docker push dockerhub-username/repo-name:latest
+
+deploy:
+needs: build
+runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to AWS EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ec2-user@ec2-instance-public-dns << 'EOF'
+          docker pull dockerhub-username/repo-name:latest
+          docker stop customer-service || true
+          docker rm customer-service || true
+          docker run -d -p 8080:8080 --name customer-service dockerhub-username/repo-name:latest
+        EOF
+```
+
+Es necesario además manejar credenciales de forma segura para contectarse tanto a Docker Hub como a EC2 de aws. Para ello en GitHub en Settings > Secrets and variables > Actions añadimos los secrets DOCKER_USERNAME y DOCKER_PASSWORD.
+Y también añadimos la clave privada SSH como un secret llamado EC2_SSH_KEY.
+
+Luego en nuestra instancia de EC2 debemos instalar Docker y asegurarnos que funcione correctamente.
+Configuramos SSH autorizando la clave pública correspondiente a la clave privada que añadimos en GitHub.
+
+Con esta configuración, cada vez que hagamos un push al branch main se compilará la aplicación usando Maven y así se construirá y enviará la imagen de Docker a Docker Hub.
+Por ultimo se conectará a nuestra instancia EC2 y desplegará la nueva versión de la aplicación.
