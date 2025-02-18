@@ -8,7 +8,7 @@ Este documento proporciona instrucciones detalladas para construir, ejecutar y u
 ### 1. Requisitos Previos
 
 - **Java 17** o superior.
-- **Maven 3.5+** o **Gradle 7.5+**.
+- **Maven 3.8.7**.
 - **Docker** instalado en su sistema.
 
 ### 2. Clonar el Repositorio
