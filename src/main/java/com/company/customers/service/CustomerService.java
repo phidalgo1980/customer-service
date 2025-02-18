@@ -2,6 +2,7 @@ package com.company.customers.service;
 
 import com.company.customers.dto.CustomerDTO;
 import com.company.customers.dto.CustomerResponseDTO;
+import com.company.customers.factory.CustomerFactory;
 import com.company.customers.model.Customer;
 import com.company.customers.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,20 +17,15 @@ import java.util.Map;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerFactory customerFactory;
 
     public Customer registerCustomer(CustomerDTO dto) {
-        Customer customer = Customer.builder()
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .age(dto.getAge())
-                .birthDate(dto.getBirthDate())
-                .build();
-        return customerRepository.save(customer);
+        return customerRepository.save(customerFactory.createCustomer(dto));
     }
 
     public List<CustomerResponseDTO> listCustomersWithLifeExpectancy() {
         return customerRepository.findAll().stream()
-                .map(CustomerResponseDTO::new)
+                .map(customerFactory::createCustomerDTO)
                 .toList();
     }
 

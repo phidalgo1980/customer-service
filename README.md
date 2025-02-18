@@ -76,7 +76,7 @@ http://localhost:8080/swagger-ui/index.html
 ### 2. Endpoints Disponibles
    La aplicación expone los siguientes endpoints:
 
-**`POST /login`**: Autenticación de usuarios.
+**`POST /auth/login`**: Autenticación de usuarios.
 
 **`POST /customers`**: Genera un nuevo cliente con nombre, apellido, edad y fecha de nacimiento.
 
@@ -104,3 +104,54 @@ Copie el token JWT recibido tras la autenticación.
 En Swagger UI, haga clic en el botón **`"Authorize"`** ubicado en la parte superior derecha.
 En el campo que aparece, ingrese **`Bearer`** seguido del token JWT copiado.
 Haga clic en **`"Authorize"`**.
+
+## Consideraciones Generales
+
+### 1. Uso de Lombok y Patrón Builder
+
+Se integró la biblioteca Lombok para reducir el código boilerplate en las clases de datos. En particular, se utilizó la anotación @Builder para implementar el patrón de diseño Builder, facilitando la creación y configuración de objetos de manera más legible y concisa.
+
+### 2. Implementación del Patrón Factory
+
+Se adoptó el patrón de diseño Factory para centralizar la creación de instancias de las clases Customer y CustomerDTOResponse. Esto permite encapsular la lógica de instanciación y proporciona flexibilidad para futuras modificaciones en el proceso de creación de objetos.
+
+### 3. Desarrollo de Pruebas Unitarias e Integración
+
+Se desarrollaron dos tipos de pruebas para asegurar la calidad y funcionalidad del código:
+
+- **Pruebas de Servicio**: Pruebas unitarias que validan la lógica de negocio en los servicios, asegurando que cada método funcione según lo esperado.
+
+- **Pruebas de Integración**: Pruebas que verifican la correcta interacción entre los diferentes componentes de la aplicación, incluyendo la comunicación con la base de datos y la respuesta de los endpoints REST.
+
+### 4. Internacionalización (Multiidioma)
+
+Se implementó la internacionalización para soportar múltiples idiomas, específicamente inglés y español. Esto se logró mediante la creación de archivos de mensajes (messages.properties para inglés y messages_es.properties para español), permitiendo que la aplicación muestre mensajes y validaciones en el idioma correspondiente según la configuración regional del usuario.
+
+### 5. Manejo Centralizado de Excepciones
+
+Se estableció un manejo centralizado de excepciones para gestionar de manera uniforme los errores que puedan ocurrir durante la ejecución de la aplicación. Esto se implementó mediante un controlador global de excepciones que captura y maneja diferentes tipos de errores, proporcionando respuestas coherentes y códigos de estado HTTP adecuados.
+
+### 6. Uso de Base de Datos H2 con Datos Precargados
+
+Para facilitar el desarrollo y las pruebas, se optó por utilizar la base de datos en memoria H2. Se configuraron scripts de inicialización (schema.sql y data.sql) que crean las tablas necesarias y precargan datos de ejemplo. Esto permite probar los endpoints de la aplicación sin necesidad de configurar una base de datos externa.
+
+Para una comprensión más profunda sobre algunos de estos temas, puedes consultar los siguientes recursos:
+
+### 7. Trazabilidad
+
+Para garantizar un seguimiento preciso de cada solicitud que maneja la aplicación, se implementó un mecanismo de trazabilidad mediante un request_id único. Este enfoque permite identificar y rastrear de manera efectiva cada interacción con los endpoints del servicio.
+
+Los pasos clave de esta implementación son:
+
+- **Filtro de Asignación de request_id**: Se creó un filtro que intercepta todas las solicitudes entrantes. Este filtro verifica si la solicitud contiene un encabezado X-Request-Id. Si no está presente, genera un UUID único que actúa como request_id. Este identificador se añade al contexto de diagnóstico mapeado (MDC) para su uso en los registros.
+
+- **Inclusión del request_id en los Logs**: Se configuró el sistema de registro (Logback) para que cada entrada de log incluya el request_id correspondiente. Esto se logró modificando el patrón de registro en el archivo de configuración logback-spring.xml, asegurando que el request_id esté presente en todos los registros generados durante el ciclo de vida de una solicitud.
+
+- **Acceso al request_id en los Controladores**: Dentro de los controladores, es posible acceder al request_id actual a través del MDC. Esto permite que, además de los registros, el request_id se incluya en las respuestas HTTP o se utilice en la lógica de negocio según sea necesario.
+
+Esta implementación mejora significativamente la capacidad de monitoreo y depuración de la aplicación, facilitando la correlación de eventos y la identificación rápida de problemas relacionados con solicitudes específicas.
+
+Ejemplo:
+```bash
+2025-02-17 21:00:32 [4fc01e20-fb60-41a7-a7f7-1725dc0361f2] INFO  c.c.c.controller.CustomerController - Getting customer metrics2025-02-17 21:00:32 [4fc01e20-fb60-41a7-a7f7-1725dc0361f2] INFO  c.c.c.controller.CustomerController - Getting customer metrics
+```

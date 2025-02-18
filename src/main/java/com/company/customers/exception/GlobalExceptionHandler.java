@@ -1,5 +1,6 @@
 package com.company.customers.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler  {
 
@@ -25,9 +27,9 @@ public class GlobalExceptionHandler  {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest request) {
 
-        ex.getAllErrors().stream().map(error -> error.getDefaultMessage()).collect(Collectors.joining());
+        ex.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining());
 
         String errorMessage = ex.getAllErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -36,6 +38,9 @@ public class GlobalExceptionHandler  {
         Map<String, Object> body = new HashMap<>();
         body.put("error", errorMessage);
 
+        Locale locale = request.getLocale();
+        log.error(messageSource.getMessage("error.log", null, locale), errorMessage);
+
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
@@ -43,6 +48,9 @@ public class GlobalExceptionHandler  {
     public ResponseEntity<String> handleResourceNotFound(UserNotFoundException ex, WebRequest request) {
         Locale locale = request.getLocale();
         String errorMessage = messageSource.getMessage("error.user.notfound", null, locale);
+
+        log.error(messageSource.getMessage("error.log", null, locale), errorMessage);
+
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 
@@ -50,6 +58,9 @@ public class GlobalExceptionHandler  {
     public ResponseEntity<String> handleGeneralException(Exception ex, WebRequest request) {
         Locale locale = request.getLocale();
         String errorMessage = messageSource.getMessage("error.internal", null, locale);
+
+        log.error(messageSource.getMessage("error.log", null, locale), errorMessage);
+
         return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
