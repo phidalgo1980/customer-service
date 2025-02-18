@@ -5,19 +5,16 @@ import com.company.customers.security.SecurityConfig;
 import com.company.customers.dto.AuthRequestDTO;
 import com.company.customers.dto.AuthResponseDTO;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class AuthService {
 
-    private final BCryptPasswordEncoder passwordEncoder;
     private final SecurityConfig securityConfig;
 
 
-    public AuthService(BCryptPasswordEncoder passwordEncoder, SecurityConfig securityConfig) {
-        this.passwordEncoder = passwordEncoder;
+    public AuthService(SecurityConfig securityConfig) {
         this.securityConfig = securityConfig;
     }
 
